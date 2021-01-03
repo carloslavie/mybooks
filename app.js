@@ -1,13 +1,46 @@
 const express = require("express");
 const mysql = require("mysql");
 const util = require("util");
+const jwt = require("jsonwebtoken");
+const unless = require("express-unless");
+const bcrypt = require("bcrypt");
+const { send } = require("process");
+
 
 const app = express();
 const port = process.env.PORT ? process.env.PORT : 3000;
 
 //app.use("/static", express.static("public"));
 //app.use(express.urlencoded());
+
 app.use(express.json());
+
+const auth = (req, res, next)=>{
+    try {
+        let token = req.headers["authorization"];
+        if(!token){
+            throw new Error("No te encuentras logueado")
+        }
+        token = token.replace("Bearer ", "");
+        jwt.verify(token, "secret", (err, user)=>{
+            if(err){
+                throw new Error("Token invalido")
+            }
+        });
+        next();
+    } 
+    catch (e) {
+        res.status(403).send({message : e.message})
+    }
+}
+
+auth.unless = unless;
+app.use(auth.unless({
+    path:[
+        {url:'/login', methods : ['POST']},
+        {url:'/registro', methods : ['POST']}
+    ]
+}));
 
 // Conexion con mysql
 
@@ -26,7 +59,76 @@ conexion.connect((error)=>{
 
     const qy = util.promisify(conexion.query).bind(conexion); //permite el uso de async-await en la conexion mysql
 
+//REGISTRO
 
+app.post("/registro", async (req, res) =>{
+    try{
+        if(!req.body.nombre || !req.body.apellido || !req.body.clave || !req.body.email || !req.body.celular){
+            throw new Error("No complestaste los campos");
+        }
+
+        let query = "SELECT * FROM usuarios WHERE email = ?";
+        let respuesta = await qy(query, [req.body.email]);
+
+        if(respuesta.length > 0){
+            throw new Error("Ese email ya se encuentra registrado");
+        }
+
+        const claveEncriptada = await bcrypt.hash(req.body.clave, 10);
+
+
+        query = "INSERT INTO usuarios (nombre, apellido, email, celular, clave) VALUES (?,?,?,?,?)";
+        respuesta = await qy(query, [req.body.nombre, req.body.apellido, req.body.email, req.body.celular, claveEncriptada]);
+
+        res.status(200).send({message : "Se registro correctamente"});
+    }
+    catch(e){
+        res.status(413).send({message : e.message})
+    }
+});
+
+//LOGIN
+
+app.post("/login" , async (req,res)=>{
+
+    try {
+        if(!req.body.usuario || !req.body.clave){
+            throw new Error("No completaste los campos");
+        }
+
+        let query =  "SELECT * FROM usuarios WHERE email = ?";
+        let respuesta = await qy(query, [req.body.usuario]);
+
+        if(respuesta.length == 0){
+            throw new Error ("El usuario no se encuentra registrado");
+        }
+
+        /*query = "SELECT clave FROM usuarios WHERE email = ?"
+        const claveEncriptada = await qy(query, [req.body.usuario]);*/
+
+        console.log(respuesta[0].clave);
+        const claveEncriptada = respuesta[0].clave;
+
+
+        if(!bcrypt.compareSync(req.body.clave, claveEncriptada)){
+            throw new Error ("clave incorrecta");
+        
+        }
+        const tokenData = {
+            nombre: respuesta[0].nombre,
+            apellido: respuesta[0].apellido,
+            id: respuesta[0].id
+        }
+ console.log(tokenData);
+        const token = jwt.sign(tokenData, "secret", {
+            expiresIn: 60*60*24
+        })
+        res.status(200).send({token})
+    } 
+    catch (e) {
+        res.status(413).send({message : e.message});
+    }
+});
 
     /*CATEGORIA
 
