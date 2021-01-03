@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Bienvenido a la Biblioteca Virtual</h1>
+        <table>
+            <ul>
+                <li><a href="ingresar.html">Ingresar nuevo libro</a></li>
+            </ul>
+            <ul>
+                <li><a href="listar.html">Buscar libros</a></li>
+            </ul>
+        </table>
+    </header>
+
+    <form action="/libros" method="post">
+
+        <label for="nombre">Nombre del libro</label>
+        <input type="text" name="nombre" id="nombre">
+        <br>
+        
+        <label for="genero">Genero</label>
+        <input type="text" name="genero" id="genero">
+        <br>
+
+        <label for="descripcion">Descripcion</label>
+        <input type="text" name="descripcion" id="descripcion">
+        <br>
+
+        <button>Enviar</button>
+
+    </form>
+
+    <a href="http://localhost:3000/static/index.html">Inicio</a>
+
+    <script src="/app.js"></script>
+
+</body>
+</html>

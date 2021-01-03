@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Bienvenido a la Biblioteca Virtual</h1>
+        <table>
+            <ul>
+                <li><a href="ingresar.html">Ingresar nuevo libro</a></li>
+            </ul>
+            <ul>
+                <li><a href="listar.html">Buscar libros</a></li>
+            </ul>
+        </table>
+    </header>
+
+    <form action="/libros" method="GET">
+
+        <label for="todosLosLibros">Ver listado de libros</label>
+        <button name="todosLosLibros" id="todosLosLibros">Solicitar</button>
+        <br>
+    </form>  
+
+    <form action="/carpeta" method="GET">
+        <label for="unico">Buscar libro</label>
+        <input type="text" name="unico" id="unico">
+        <br>
+        
+        <button>Buscar</button>
+
+    </form>
+
+    <form action="/libros" method="PUT">
+
+        <label for="modificar">Modificar un libro</label>
+        <input type="text" name="todosLosLibros" id="todosLosLibros">
+        <br>
+
+        <label for="soloUnLibros">Buscar libro</label>
+        <input type="text" name="soloUnLibros" id="soloUnLibros">
+        <br>
+        
+        <button>Enviar</button>
+
+    </form>
+
+    <script src="/app.js"></script>
+
+</body>
+</html>
